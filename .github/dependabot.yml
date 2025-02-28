@@ -1,12 +1,20 @@
 version: 2
 updates:
+  # Monitor Gradle dependencies (for Android app)
   - package-ecosystem: "gradle"
-    directory: "/"
+    directory: "/"  # Assumes your build.gradle is in the root or a standard Android structure
     schedule:
-      interval: "daily"
-    open-pull-requests-limit: 10
-    commit-message:
-      prefix: "chore(deps)"
+      interval: "daily"  # Checks daily for updates
+    open-pull-requests-limit: 5  # Limits the number of open PRs to avoid clutter
     labels:
       - "dependencies"
       - "gradle"
+
+  # Monitor GitHub Actions dependencies (for your workflows)
+  - package-ecosystem: "github-actions"
+    directory: "/"  # Looks for workflows in .github/workflows
+    schedule:
+      interval: "weekly"  # Weekly checks for Actions updates
+    open-pull-requests-limit: 5
+    labels:
+      - "github-actions"
