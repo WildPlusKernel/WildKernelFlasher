@@ -1,34 +1,55 @@
-name: Android CI
+name: Build Android App
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - master  # Trigger on push to main branch
   pull_request:
-    branches: [ main ]
+    branches:
+      - master  # Trigger on PRs to main branch
 
 jobs:
   build:
-    name: Build Android App
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
+      # Check out the repository code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up latest LTS JDK
-        uses: actions/setup-java@v3
+      # Set up JDK (Java Development Kit) for Android
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: 'lts'
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
 
-      - name: Grant execute permission to Gradlew
-        run: chmod +x gradlew
+      # Set up Android SDK
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
 
-      - name: Build with Gradle
-        run: ./gradlew assembleDebug
+      # Grant execute permission to gradlew
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
 
-      - name: Upload APK Artifact
+      # Build the app (APK)
+      - name: Build APK
+        run: ./gradlew assembleDebug  # Builds a debug APK; use assembleRelease for a release APK
+
+      # Optional: Build Android App Bundle (AAB)
+      - name: Build AAB
+        run: ./gradlew bundleDebug  # Builds a debug AAB; use bundleRelease for release
+
+      # Upload the APK as an artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug-apk
+          name: app-debug.apk
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      # Upload the AAB as an artifact
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug.aab
+          path: app/build/outputs/bundle/debug/app-debug.aab
